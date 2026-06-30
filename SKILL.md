@@ -214,7 +214,7 @@ Restart at Phase 1.
 
 **Integrations**
 - `stripe` — Stripe (webhook handler + subscription) → SECURITY? YES
-- `playwright` — Playwright (e2e scaffold + CI)
+- `playwright` — Playwright (e2e scaffold + matrix CI) → `references/testing-ci-pattern.md`
 - `github` — GitHub Actions (CI/CD, branch protection)
 - `openapi` — OpenAPI + Scalar (spec-first, auto docs)
 
@@ -228,6 +228,7 @@ Restart at Phase 1.
 | `references/daas-pattern.md` | TYPE includes DaaS |
 | `references/aiaas-pattern.md` | TYPE includes AIaaS |
 | `references/flutter-winui-pattern.md` | Stack includes `flutter` or `winui` |
+| `references/testing-ci-pattern.md` | Stack includes `playwright`, or any GitHub Actions CI step |
 | `references/caveman.md` | Session start — always load |
 | `references/security-review.md` | `SECURITY? YES` in any Verify phase |
 | `references/frontend-design.md` | `UI? YES` in any Plan phase |
