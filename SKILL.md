@@ -198,7 +198,7 @@ Restart at Phase 1.
 **Backend**
 - `node` — Node.js (Fastify, TypeScript, Zod)
 - `dotnet` — C# .NET 8 (Minimal API or Controllers, Scalar docs)
-- `python` — Python (FastAPI, Pydantic, async-first)
+- `python` — Python (FastAPI, Pydantic, async-first) → `references/python-pattern.md`
 
 **Database**
 - `postgres` — PostgreSQL (Docker-composed, Flyway or EF Core migrations)
@@ -229,6 +229,7 @@ Restart at Phase 1.
 | `references/aiaas-pattern.md` | TYPE includes AIaaS |
 | `references/flutter-winui-pattern.md` | Stack includes `flutter` or `winui` |
 | `references/testing-ci-pattern.md` | Stack includes `playwright`, or any GitHub Actions CI step |
+| `references/python-pattern.md` | Stack includes `python` |
 | `references/caveman.md` | Session start — always load |
 | `references/security-review.md` | `SECURITY? YES` in any Verify phase |
 | `references/frontend-design.md` | `UI? YES` in any Plan phase |
