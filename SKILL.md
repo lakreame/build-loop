@@ -124,6 +124,13 @@ Applies to: `react-ts`, `blazor`, `flutter`, `winui`. Follow the full process in
 - Flutter / WinUI → `references/flutter-winui-pattern.md`
 - SaaS / DaaS / AIaaS → `references/[type]-pattern.md`
 
+**Playwright screenshots (when `UI? YES` and `playwright` is in the stack)**
+
+Follow `references/testing-ci-pattern.md` → Screenshots section: every new screen or component
+gets at least one explicit screenshot saved to `test-results/screenshots/`, and components built
+via `frontend-design.md` get a `toHaveScreenshot` baseline so future loops can't silently
+regress the confirmed design. Verify phase checks for this — see below.
+
 ---
 
 ### Phase 3 — VERIFY
@@ -143,6 +150,7 @@ Apply the following checks to all code produced this loop:
 - [ ] Errors propagated — no silent swallows
 - [ ] Type safety enforced end-to-end
 - [ ] No hardcoded secrets or credentials anywhere in output
+- [ ] If `UI? YES` + `playwright` in stack: new screens have an explicit screenshot, not just on-failure capture
 
 Flag any failures as `CODE-REVIEW: ISSUES` and carry them forward to Iterate.
 

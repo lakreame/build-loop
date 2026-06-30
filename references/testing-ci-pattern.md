@@ -178,6 +178,140 @@ test('completes checkout with test card', async ({ page }) => {
 
 ---
 
+## Playwright — Screenshots
+
+Screenshots serve three purposes in this skill: failure diagnosis, explicit visual proof for
+the Verify phase, and visual regression baselines. Use the right one for the job.
+
+### Automatic — On Failure (already in config)
+
+`playwright.config.ts` should always set this (see Project Setup above):
+```ts
+use: {
+  screenshot: 'only-on-failure',
+  trace: 'on-first-retry',
+  video: 'retain-on-failure',
+}
+```
+This requires no test code — Playwright captures automatically and attaches to the HTML report.
+
+### Explicit — Full Page Capture
+
+Use when a loop's `DONE WHEN` criterion is visual ("user sees the dashboard render correctly")
+and you want a screenshot saved regardless of pass/fail, not just on failure:
+
+```ts
+test('dashboard renders after login', async ({ page }) => {
+  await page.goto('/dashboard')
+  await expect(page.getByText('Welcome back')).toBeVisible()
+
+  await page.screenshot({
+    path: 'test-results/screenshots/dashboard-loaded.png',
+    fullPage: true,
+  })
+})
+```
+
+### Explicit — Single Element Capture
+
+Useful for verifying a specific component (e.g. the bounding-box overlay, a chart, a form state)
+without noise from the rest of the page:
+
+```ts
+test('detection overlay renders correctly', async ({ page }) => {
+  await page.goto('/')
+  await detector.uploadImage('e2e/fixtures/dog.jpg')
+  await expect(page.locator('.detector__status')).toBeVisible({ timeout: 15000 })
+
+  await page.locator('.detector__canvas').screenshot({
+    path: 'test-results/screenshots/detection-overlay.png',
+  })
+})
+```
+
+### Visual Regression — Snapshot Comparison
+
+For catching unintended UI drift across loops (already referenced in Core Patterns, expanded here):
+
+```ts
+test('login page matches baseline', async ({ page }) => {
+  await page.goto('/login')
+  await expect(page).toHaveScreenshot('login-page.png', {
+    maxDiffPixels: 100,
+    fullPage: true,
+  })
+})
+```
+
+First run creates the baseline under `e2e/__screenshots__/`. Commit the baseline to the repo.
+Update it deliberately when a design change is intentional:
+```bash
+npx playwright test --update-snapshots
+```
+
+Mask dynamic content (timestamps, avatars, ids) that would otherwise cause false failures:
+```ts
+await expect(page).toHaveScreenshot('dashboard.png', {
+  mask: [page.locator('.timestamp'), page.locator('.user-avatar')],
+})
+```
+
+### Multi-Viewport Screenshots
+
+Useful for responsive layouts — capture the same flow at multiple breakpoints in one test:
+
+```ts
+const viewports = [
+  { name: 'mobile', width: 375, height: 667 },
+  { name: 'tablet', width: 768, height: 1024 },
+  { name: 'desktop', width: 1440, height: 900 },
+]
+
+for (const vp of viewports) {
+  test(`upload flow at ${vp.name}`, async ({ page }) => {
+    await page.setViewportSize({ width: vp.width, height: vp.height })
+    await page.goto('/')
+    await page.screenshot({
+      path: `test-results/screenshots/upload-${vp.name}.png`,
+      fullPage: true,
+    })
+  })
+}
+```
+
+### Uploading Screenshots as CI Artifacts
+
+Add this to every Playwright job in the GitHub Actions matrix (see below) so screenshots are
+downloadable from the run summary even when tests pass:
+
+```yaml
+- run: npx playwright test
+- uses: actions/upload-artifact@v4
+  if: always()
+  with:
+    name: screenshots-${{ matrix.browser }}
+    path: test-results/screenshots/
+    retention-days: 14
+- uses: actions/upload-artifact@v4
+  if: failure()
+  with:
+    name: playwright-report-${{ matrix.browser }}
+    path: playwright-report/
+    retention-days: 7
+```
+
+### Loop Integration — Screenshots
+
+When `playwright` is in the stack and a Plan step has `UI? YES`:
+1. Every new screen or component gets at least one explicit full-page or element screenshot
+   saved to `test-results/screenshots/` — not just relied-on failure captures
+2. If the step's `DONE WHEN` criterion is visual, the Verify phase should reference the
+   screenshot path as evidence, not just a pass/fail assertion
+3. For components with a defined visual design (anything that went through
+   `references/frontend-design.md`), add a `toHaveScreenshot` baseline so future loops can't
+   silently regress the design
+4. Mask any dynamic content (timestamps, random data, avatars) before snapshotting
+
 ## Playwright — Flutter Web
 
 ```ts
